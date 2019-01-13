@@ -23,6 +23,7 @@ import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
 import android.view.View;
 import android.view.ViewRootImpl;
+import android.view.ThreadedRenderer.FrameDrawingCallback;
 
 /**
  * Helper class to apply surface transactions in sync with RenderThread.
@@ -51,7 +52,8 @@ public class SyncRtSurfaceTransactionApplier {
         if (mTargetViewRootImpl == null) {
             return;
         }
-        mTargetViewRootImpl.registerRtFrameCallback(frame -> {
+        mTargetViewRootImpl.registerRtFrameCallback(new FrameDrawingCallback() {
+            public void onFrameDraw(long frame) {
                 if (mTargetSurface == null || !mTargetSurface.isValid()) {
                     return;
                 }
@@ -64,6 +66,7 @@ public class SyncRtSurfaceTransactionApplier {
                 }
                 t.setEarlyWakeup();
                 t.apply();
+            }
         });
 
         // Make sure a frame gets scheduled.
